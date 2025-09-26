@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Recipe Library</title>
+    <link rel="stylesheet" href="style.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <h1>Recipe Library</h1>
+
+    <section class="filters">
+      <div>
+        <h2>Filter on kitchen</h2>
+        <button id="btn-all" class="kitchen" data-cuisine="all">All</button>
+        <button id="btn-italy" class="kitchen" data-cuisine="italy">
+          Italy
+        </button>
+        <button id="btn-usa" class="kitchen" data-cuisine="usa">USA</button>
+        <button id="btn-china" class="kitchen" data-cuisine="china">
+          China
+        </button>
+      </div>
+
+      <div>
+        <h2>Filter on Diets</h2>
+        <button id="btn-diet-all" class="diet" data-diet="diet-all">All</button>
+        <button id="btn-vegan" class="diet" data-diet="vegan">Vegan</button>
+        <button id="btn-vegetarian" class="diet" data-diet="vegetarian">
+          Vegetarian
+        </button>
+        <button id="btn-glutenfree" class="diet" data-diet="gluten-free">
+          Gluten-free
+        </button>
+        <button id="btn-dairyfree" class="diet" data-diet="dairy-free">
+          Dairy-free
+        </button>
+      </div>
+    </section>
+
+    <section class="filters">
+      <div>
+        <h2>Sort on time</h2>
+        <button id="btn-desc" class="time" data-sort="desc">Descending</button>
+        <button id="btn-asc" class="time" data-sort="asc">Ascending</button>
+      </div>
+      <div>
+        <h2>Sort by popularity</h2>
+        <button id="btn-mostPopular" class="popular" data-popular="most">
+          Most Popular
+        </button>
+        <button id="btn-leastPopular" class="popular" data-popular="least">
+          Least Popular
+        </button>
+      </div>
+    </section>
+
+    <section>
+      <div id="cards" class="recipes-boxes"></div>
+    </section>
+    <script src="script.js"></script>
+  </body>
+</html>
