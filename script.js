@@ -166,7 +166,7 @@ const renderResult = () => {
   const list = getCurrentList(); //Kallar på funktionen pickRecipe
 
   if (list.length === 0) {
-    cardsEl.innerHTML = `<p>"No recipie found. Try another filter</p>`;
+    cardsEl.innerHTML = `<p>"No recipes found. Try another filter</p>`;
     return;
   }
 
@@ -204,6 +204,46 @@ const renderResult = () => {
   cardsEl.innerHTML = html;
 };
 
+//=============Random funktion===============
+const renderSingleResult = (r) => {
+  let cuisineText;
+  if (r.cuisine === "all") {
+    cuisineText = "Mixed";
+  } else {
+    cuisineText = r.cuisine[0].toUpperCase() + r.cuisine.slice(1);
+  }
+
+  const timeText = r.time + " minutes"; //konstanta variabler skapas
+  const dietText = r.diet || "-";
+  const popularText = renderStars(r.popularity);
+
+  const ingHtml = r.ingredients.map((i) => `<li>${i}</li>`).join(""); //Här görs igridienslistan om från array till html
+
+  return `
+       <article class="recipe">
+      <img src="${r.img}" alt="${r.title}" />
+      <h3 class="title">${r.title}</h3>
+      <div class="meta">
+        <p><strong>Cuisine:</strong> <span class="cuisine">${cuisineText}</span></p>
+        <p><strong>Diet:</strong> <span>${dietText}</span></p>
+        <p><strong>Popularity:</strong>${popularText}</p>
+        <p><strong>Time:</strong> <span>${timeText}</span></p>
+      </div>
+      <h4>Ingredients</h4>
+      <ul>${ingHtml}</ul>
+    </article>
+  `;
+};
+
+const randomButton = document.getElementById("btn-random");
+
+const getRandomRecipe = () => {
+  const randomIndex = Math.floor(Math.random() * recipes.length);
+  const recipe = recipes[randomIndex];
+  cardsEl.innerHTML = renderSingleResult(recipe);
+};
+randomButton.addEventListener("click", getRandomRecipe);
+
 //filtrering av land
 document
   .getElementById("btn-all")
@@ -218,6 +258,7 @@ document
   .getElementById("btn-china")
   .addEventListener("click", () => setCuisine("china"));
 
+//filtrering av diet
 document
   .getElementById("btn-diet-all")
   .addEventListener("click", () => setDiet("diet-all"));
@@ -255,6 +296,17 @@ document.getElementById("btn-leastPopular").addEventListener("click", () => {
 });
 
 renderResult();
+
+//===Randombutton========================
+//document.getElementById("btn-random").addEventListener("click", () => {
+//const list = getCurrentList(); // hämta alla recept (med filter/sortering)
+//const random = list[Math.floor(Math.random() * list.length)];
+// plocka ett slumpat recept ur listan
+//cardsEl.innerHTML = renderSingleResult(random);
+// visa ENDAST det slumpade receptet
+//});
+
+//==============KNAPPARNA======================
 
 const cuisineButtons = document.querySelectorAll(".kitchen");
 const sortButtons = document.querySelectorAll(".time");

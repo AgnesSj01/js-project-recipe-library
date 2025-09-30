@@ -39,7 +39,8 @@ p {
 .kitchen,
 .time,
 .diet,
-.popular {
+.popular,
+.random {
   padding: 8px 16px 8px 16px;
   border-radius: 50px;
   border: 2px solid transparent;
@@ -64,6 +65,11 @@ p {
 .popular {
   background-color: lightskyblue;
   box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.3);
+}
+.random {
+  background-color: aquamarine;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.3);
+  border: 2px solid rgb(24, 163, 228);
 }
 
 button.selected {
@@ -229,6 +235,12 @@ ul {
     justify-items: start;
     margin-left: 0;
     margin-right: 0;
+    margin-bottom: 20px;
+  }
+
+  .recipe {
+    height: auto; /* släpp så att innehållet styr höjden */
+    width: 250px; /* bredden är fix, men */
   }
 
   .filters {
