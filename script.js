@@ -173,13 +173,7 @@ const renderResult = () => {
   let html = ""; //Bygger ihop html koden för alla recept
   list.forEach((r) => {
     //list= listan på recept från currentlist. forEach (gå igenom varje recept på listan)
-    let cuisineText;
-    if (r.cuisine === "all") {
-      cuisineText = "Mixed";
-    } else {
-      cuisineText = r.cuisine[0].toUpperCase() + r.cuisine.slice(1);
-    }
-
+    const cuisineText = r.cuisine[0].toUpperCase() + r.cuisine.slice(1);
     const timeText = r.time + " minutes"; //konstanta variabler skapas
     const dietText = r.diet;
     const popularText = renderStars(r.popularity);
@@ -205,20 +199,17 @@ const renderResult = () => {
 };
 
 //=============Random funktion===============
+
+//En funktion som tar in ett objekt (r)
 const renderSingleResult = (r) => {
-  let cuisineText;
-  if (r.cuisine === "all") {
-    cuisineText = "Mixed";
-  } else {
-    cuisineText = r.cuisine[0].toUpperCase() + r.cuisine.slice(1);
-  }
-
-  const timeText = r.time + " minutes"; //konstanta variabler skapas
-  const dietText = r.diet || "-";
+  //Ser till att första bokstaven är stor
+  const cuisineText = r.cuisine[0].toUpperCase() + r.cuisine.slice(1);
+  const timeText = r.time + " minutes"; //konstanta variabler skapas.. En visningstext för minuter
+  const dietText = r.diet || "-"; // om diet finns skrivs den ut annars "-"
   const popularText = renderStars(r.popularity);
-
   const ingHtml = r.ingredients.map((i) => `<li>${i}</li>`).join(""); //Här görs igridienslistan om från array till html
 
+  //Här byggs en receptkort bild. Stoppar in variabler i html
   return `
        <article class="recipe">
       <img src="${r.img}" alt="${r.title}" />
@@ -234,14 +225,19 @@ const renderSingleResult = (r) => {
     </article>
   `;
 };
-
+//Knappen för slumpartad recept
 const randomButton = document.getElementById("btn-random");
 
+//Funktion som körs när användaren klickar på knappen
 const getRandomRecipe = () => {
+  //Slumpar fram ett heltal mellan 0 och antal recept – 1.
   const randomIndex = Math.floor(Math.random() * recipes.length);
+  //Hämtar det slumpade receptet från listan recipes.
   const recipe = recipes[randomIndex];
+  //Gör om receptet till HTML (med hjälp av renderSingleResult) och visar det i sidan, i elementet cardsEl.
   cardsEl.innerHTML = renderSingleResult(recipe);
 };
+//När användaren klickar på knappen körs getRandomRecipe, och ett nytt slumpat recept visas.
 randomButton.addEventListener("click", getRandomRecipe);
 
 //filtrering av land
