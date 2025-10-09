@@ -1,5 +1,10 @@
 const cardsEl = document.getElementById("cards");
+const API_KEY = "023721190a824bc5b967171438a1f9af";
 const renderStars = (num) => "⭐".repeat(num);
+const showAllButton = document.getElementById("btn-show-all");
+const CACHE_KEY = "recipesCache"; // namn på lagringen
+const CACHE_TIME = 6 * 60 * 60 * 1000; // giltig i 6 timmar
+const RANDOM_URL = `https://api.spoonacular.com/recipes/random?number=10&apiKey=${API_KEY}`;
 
 //Använder let istället för const för att värdena kommer att ändras.
 //skapar en variabel som heter "selectedCuisine"
@@ -15,92 +20,9 @@ let selectedPopular = "most";
 
 let selectedSortType = "time";
 
-//Dummy-recept (påhittade recept). Array med namnet recipes med alla recept
-//recepies är en variabel som innehåller en array (lista). const används då listan inte kommer ändra värden
-//Varje receptkort har tre egenskaper "title" "cuisine" och "time"
-//Använder det här ssättet då det kommer bli lättare att loopa över listan sen
-const recipes = [
-  {
-    title: "Cheat’s cheesy Focaccia",
-    cuisine: "italy",
-    diet: "vegetarian",
-    time: 40,
-    popularity: 1,
-    img: "./images/pizza.jpg",
-    ingredients: [
-      "500 pack bread mix",
-      "2tbsp. olive oil, plus a little extra for drizzling",
-      "25g parmesan (or vegetarian alternative), grated",
-      "75g dolcelatte cheese (or vegetarian alternative)",
-    ],
-  },
-  {
-    title: "Burnt-Scallion Fish",
-    cuisine: "usa",
-    diet: "None",
-    popularity: 5,
-    time: 25,
-    img: "./images/fish.jpg",
-    ingredients: [
-      "2 bunches scollions",
-      "8 tbsp. butter</li",
-      "2 8-oz. fish filets",
-    ],
-  },
-  {
-    title: "Baked Chicken",
-    cuisine: "china",
-    diet: "Gluten-free",
-    popularity: 5,
-    time: 35,
-    img: "./images/meat.jpg",
-    ingredients: [
-      "   6 bone-in chicken breast halves, pr 6 chicken thighs and wings skin-on",
-      "1/2 tsp. coarse salt",
-      "1/2 tsp. Mrs.Dash seasoning",
-      "1/4 tsp. freshly grounded black pepper",
-    ],
-  },
-  {
-    title: "Deep Fried Fish Bones",
-    cuisine: "South-East Asia",
-    diet: "dairy-free",
-    popularity: 2,
-    time: 10,
-    img: "./images/chips.jpg",
-    ingredients: ["8 small whiting fish or smelt", "4 cups vegetable oil"],
-  },
-  {
-    title: "Sweet and Sour Tofu",
-    cuisine: "china",
-    diet: "vegan",
-    popularity: 3,
-    time: 25,
-    img: "./images/tofu.jpg",
-    ingredients: [
-      "2 cloves of garlic (minced)",
-      "1 onion (diced)",
-      "2 carrots (sliced)",
-      "1 green bell pepper (diced)",
-      "a package of tofu",
-    ],
-  },
-  {
-    title: "American pancakes",
-    cuisine: "usa",
-    diet: "gluten-free",
-    popularity: 2,
-    time: 20,
-    img: "./images/pancake.jpg",
-    ingredients: [
-      "2 1/4 dl gluten-free flour mix",
-      "2 tsp baking powder",
-      "2 tbsp granulated sugar",
-      "2 1/2 dl milk",
-      "30 g butter",
-    ],
-  },
-];
+let searchQuery = ""; // vad användaren har skrivit i sökrutan
+
+const recipes = []; // tom array som fylls med API-data
 
 //=======FUNKTIONER FÖR ATT ÄNDRA VAL, SÄGER ÅT SIDAN ATT RITAS OM ====================
 
@@ -140,7 +62,20 @@ const getCurrentList = () => {
   }
 
   if (selectedDiet !== "diet-all") {
-    list = list.filter((r) => (r.diet || "").toLowerCase() === selectedDiet);
+    list = list.filter((r) => {
+      const d = (r.diet || "").toLowerCase();
+      return d === selectedDiet;
+    });
+  }
+  const query = searchQuery.trim().toLowerCase();
+  if (query) {
+    list = list.filter((r) => {
+      const inTitle = (r.title || "").toLowerCase().includes(query);
+      const inIngredients = (r.ingredients || []).some((i) =>
+        (i || "").toLowerCase().includes(query)
+      );
+      return inTitle || inIngredients;
+    });
   }
 
   //Sortera
@@ -166,7 +101,7 @@ const renderResult = () => {
   const list = getCurrentList(); //Kallar på funktionen pickRecipe
 
   if (list.length === 0) {
-    cardsEl.innerHTML = `<p>"No recipes found. Try another filter</p>`;
+    cardsEl.innerHTML = `<p>No recipes found. Try another filter</p>`;
     return;
   }
 
@@ -228,131 +163,153 @@ const renderSingleResult = (r) => {
 //Knappen för slumpartad recept
 const randomButton = document.getElementById("btn-random");
 
-//Funktion som körs när användaren klickar på knappen
-const getRandomRecipe = () => {
-  //Slumpar fram ett heltal mellan 0 och antal recept – 1.
-  const randomIndex = Math.floor(Math.random() * recipes.length);
-  //Hämtar det slumpade receptet från listan recipes.
-  const recipe = recipes[randomIndex];
-  //Gör om receptet till HTML (med hjälp av renderSingleResult) och visar det i sidan, i elementet cardsEl.
+// Den här funktionen tar emot ett recept från Spoonaculars API (som har ett eget format)
+// och gör om det till samma struktur som mina gamla "låtsasrecept".
+// På så sätt kan jag återanvända all min gamla kod (renderResult, filter, sortering osv.)
+// utan att behöva ändra något.
+// Funktionen plockar ut titel, bild, tid, diet, ingredienser och popularitet
+// och ser till att alltid ha ett värde även om något saknas.
+const mapApiRecipe = (r) => ({
+  title: r.title || "Untitled",
+  cuisine: (r.cuisines?.[0] || "unknown").toLowerCase(),
+  diet: (r.diets?.[0] || "none").toLowerCase(),
+  popularity: Math.max(
+    1,
+    Math.min(5, Math.round((r.aggregateLikes || 0) / 100))
+  ),
+  time: r.readyInMinutes || 0,
+  img: r.image || "https://via.placeholder.com/600x400?text=No+image",
+  ingredients: (r.extendedIngredients || []).map(
+    (i) => i.original || i.name || ""
+  ),
+});
+
+//När vi klickar på randomknappen
+randomButton.addEventListener("click", () => {
+  const list = getCurrentList();
+  if (!list.length) {
+    cardsEl.innerHTML = "<p>No recipes to randomize. Adjust the filters!</p>";
+    return;
+  }
+  const randomIndex = Math.floor(Math.random() * list.length);
+  const recipe = list[randomIndex];
   cardsEl.innerHTML = renderSingleResult(recipe);
+
+  // visa knappen efter random
+
+  showAllButton.style.display = "inline-block";
+});
+
+// Visa alla: rendera listan igen + dölj knappen
+showAllButton.addEventListener("click", () => {
+  renderResult();
+  showAllButton.style.display = "none";
+});
+
+//Försöker hämta cache först
+const fetchRecipes = async () => {
+  cardsEl.innerHTML = "<p>Fetching recipes…</p>";
+
+  // 1) Försök cache först
+  const cached = localStorage.getItem(CACHE_KEY);
+  if (cached) {
+    const saved = JSON.parse(cached);
+    const tooOld = Date.now() - saved.timestamp > CACHE_TIME;
+    if (!tooOld) {
+      cardsEl.innerHTML = "<p>Showing recipes from cache</p>";
+      recipes.length = 0;
+      recipes.push(...saved.items);
+      renderResult();
+      return;
+    }
+  }
+
+  // 2) Hämta via RANDOM (GARANTERAR extendedIngredients)
+  try {
+    const res = await fetch(RANDOM_URL, { cache: "no-store" });
+    if (!res.ok) throw new Error(String(res.status));
+
+    const json = await res.json();
+    const mapped = (json.recipes || []).map(mapApiRecipe);
+
+    // Debug: se att vi verkligen har ingredienser
+    console.log("Första receptet:", mapped[0]);
+    console.log("Mapped ingredients count:", mapped[0]?.ingredients?.length);
+
+    recipes.length = 0;
+    recipes.push(...mapped);
+    renderResult();
+
+    // 3) Spara i localStorage
+    localStorage.setItem(
+      CACHE_KEY,
+      JSON.stringify({ timestamp: Date.now(), items: mapped })
+    );
+  } catch (error) {
+    console.error("Fetch error:", error);
+    let message;
+    switch (error.message) {
+      case "401":
+        message = "<p>Invalid or missing API key (401).</p>";
+        break;
+      case "402":
+      case "429":
+        message = `
+          <p>You have reached your daily API quota or are rate-limited (402/429).</p>
+          <p>Try again tomorrow, reduce requests, or use cached data.</p>
+        `;
+        break;
+      default:
+        message =
+          "<p>Could not fetch recipes right now. Please try again later.</p>";
+    }
+    cardsEl.innerHTML = message;
+  }
 };
-//När användaren klickar på knappen körs getRandomRecipe, och ett nytt slumpat recept visas.
-randomButton.addEventListener("click", getRandomRecipe);
 
-//filtrering av land
-document
-  .getElementById("btn-all")
-  .addEventListener("click", () => setCuisine("all"));
-document
-  .getElementById("btn-italy")
-  .addEventListener("click", () => setCuisine("italy"));
-document
-  .getElementById("btn-usa")
-  .addEventListener("click", () => setCuisine("usa"));
-document
-  .getElementById("btn-china")
-  .addEventListener("click", () => setCuisine("china"));
+// Dropdown: cuisine
+document.getElementById("cuisine").addEventListener("change", (e) => {
+  setCuisine(e.target.value); // uppdaterar state
+  renderResult(); // rita om listan (eller hämta från API om du vill)
+});
 
-//filtrering av diet
-document
-  .getElementById("btn-diet-all")
-  .addEventListener("click", () => setDiet("diet-all"));
-document
-  .getElementById("btn-vegan")
-  .addEventListener("click", () => setDiet("vegan"));
-document
-  .getElementById("btn-vegetarian")
-  .addEventListener("click", () => setDiet("vegetarian"));
-document
-  .getElementById("btn-glutenfree")
-  .addEventListener("click", () => setDiet("gluten-free"));
-document
-  .getElementById("btn-dairyfree")
-  .addEventListener("click", () => setDiet("dairy-free"));
+// Dropdown: diet
+document.getElementById("diet").addEventListener("change", (e) => {
+  setDiet(e.target.value);
+  renderResult();
+});
 
-//Tidsortering
-document.getElementById("btn-asc").addEventListener("click", () => {
+// Dropdown: sort by time
+document.getElementById("sortTime").addEventListener("change", (e) => {
   selectedSortType = "time";
-  setSort("asc");
-});
-document.getElementById("btn-desc").addEventListener("click", () => {
-  selectedSortType = "time";
-  setSort("desc");
+  setSort(e.target.value); // "asc" eller "desc"
 });
 
-// popularitet-sortering
-document.getElementById("btn-mostPopular").addEventListener("click", () => {
+// Dropdown: sort by popularity
+document.getElementById("sortPop").addEventListener("change", (e) => {
   selectedSortType = "popular";
-  setPopular("most");
+  setPopular(e.target.value); // "most" eller "least"
 });
-document.getElementById("btn-leastPopular").addEventListener("click", () => {
-  selectedSortType = "popular";
-  setPopular("least");
+document.getElementById("btn-show-all").addEventListener("click", () => {
+  renderResult();
 });
-
-renderResult();
-
-//===Randombutton========================
-//document.getElementById("btn-random").addEventListener("click", () => {
-//const list = getCurrentList(); // hämta alla recept (med filter/sortering)
-//const random = list[Math.floor(Math.random() * list.length)];
-// plocka ett slumpat recept ur listan
-//cardsEl.innerHTML = renderSingleResult(random);
-// visa ENDAST det slumpade receptet
-//});
-
-//==============KNAPPARNA======================
-
-const cuisineButtons = document.querySelectorAll(".kitchen");
-const sortButtons = document.querySelectorAll(".time");
-const dietButtons = document.querySelectorAll(".diet");
-const popularButtons = document.querySelectorAll(".popular");
-
-//style för knapparna
-cuisineButtons.forEach((btn) => {
-  btn.addEventListener("click", () => {
-    cuisineButtons.forEach((b) => b.classList.remove("selected"));
-    btn.classList.add("selected");
-
-    setCuisine(btn.dataset.cuisine);
-  });
+document.getElementById("search").addEventListener("input", (e) => {
+  searchQuery = e.target.value; // uppdatera state
+  renderResult(); // rita om listan
 });
-
-sortButtons.forEach((btn) => {
-  btn.addEventListener("click", () => {
-    sortButtons.forEach((b) => b.classList.remove("selected"));
-    btn.classList.add("selected");
-    setSort(btn.dataset.sort);
-  });
-});
-
-dietButtons.forEach((btn) => {
-  btn.addEventListener("click", () => {
-    dietButtons.forEach((b) => b.classList.remove("selected"));
-    btn.classList.add("selected");
-    setDiet(btn.dataset.diet);
-  });
-});
-
-popularButtons.forEach((btn) => {
-  btn.addEventListener("click", () => {
-    popularButtons.forEach((b) => b.classList.remove("selected"));
-    btn.classList.add("selected");
-    selectedSortType = "popular"; // <-- lägg till detta
-    setPopular(btn.dataset.popular);
-  });
-});
-
-// hur funktionerna hänger ihop:
-// Användaren klickar på en knapp → setCuisine("italy").
-//setCuisine ändrar selectedCuisine → kallar på renderResult.
-//renderResult hämtar listan via getCurrentList → bygger upp HTML → visar den.
 
 //En funktion = en uppgift!!!!!!!!!!!
 
+// Se till att dropdowns visar dina startvärden
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("cuisine").value = selectedCuisine; // "all"
+  document.getElementById("diet").value = selectedDiet; // "diet-all"
+  document.getElementById("sortTime").value = selectedSort; // "asc"
+  document.getElementById("sortPop").value = selectedPopular; // "most"
+  fetchRecipes();
+});
+
+//Extra Comments on code
 //getCurrentList → ta fram listan.
 
 //renderResult → rita ut listan.
-
-//setCuisine / setSort → uppdatera val.

@@ -1,8 +1,11 @@
+* {
+  box-sizing: border-box;
+}
 body {
   font-family: "Montserrat", Arial, sans-serif;
-  padding: 0;
-  margin: 0; /* tar bort webbläsarens defaultmarginal */
-  padding: 0;
+  margin: 0;
+  padding-bottom: 30px;
+  padding-top: 120px;
 }
 h1 {
   color: #0018af;
@@ -10,49 +13,77 @@ h1 {
   text-align: center;
   line-height: 100%;
   letter-spacing: 0%;
-  font-weight: 700; /* Bold */
+  font-weight: 700;
   margin: 0 auto;
-  padding-top: 15px;
-  margin-top: 10px;
+  padding-top: 0ch;
+  margin-top: 0px;
   margin-bottom: 10px;
 }
-h2,
-h3 {
+h2 {
   font-size: 14px;
   line-height: 100%;
   letter-spacing: 0%;
-}
-
-h4 {
-  font-size: 13px;
-  line-height: 100%;
-  letter-spacing: 0%;
-  margin-bottom: 8px;
+  text-align: center;
 }
 
 p {
   font-size: 12px;
   line-height: 100%;
   letter-spacing: 0%;
-  font-weight: 400; /* Regular */
+  font-weight: 400;
 }
+
+.top-nav {
+  background-color: #b9a9ff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  width: 100%;
+  left: 0;
+  top: 0;
+  position: fixed;
+  z-index: 1000;
+  border-radius: 10px;
+}
+
+.search {
+  border: 2px solid white;
+  border-radius: 10px;
+  padding: 6px 10px;
+  width: 250px;
+}
+
 .kitchen,
 .time,
 .diet,
 .popular,
-.random {
-  padding: 8px 16px 8px 16px;
-  border-radius: 50px;
+.random,
+.show-all {
+  width: 250px;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.3);
+  border-radius: 10px;
   border: 2px solid transparent;
-  font-size: 14px;
-  line-height: 100%;
-  letter-spacing: 0%;
-  color: #0018af;
+  box-sizing: border-box;
+  padding: 10px 40px 10px 15px;
+  font-size: 13px;
+  font-family: "Montserrat", sans-serif;
+  color: #333;
+  outline: none;
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+}
+
+.kitchen,
+.time,
+.diet,
+.popular {
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='16'%20height='16'%20fill='gray'%20viewBox='0%200%2016%2016'%3E%3Cpath%20d='M1.5%205.5l6%206%206-6'/%3E%3C/svg%3E"); /* liten pil */
 }
 
 .kitchen {
   background-color: #ccffe2;
-  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .time {
@@ -64,32 +95,13 @@ p {
 }
 .popular {
   background-color: lightskyblue;
-  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.3);
 }
 .random {
   background-color: aquamarine;
-  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.3);
-  border: 2px solid rgb(24, 163, 228);
 }
 
-button.selected {
-  background-color: #0018af; /* din valda färg */
-  color: white; /* kontrastfärg */
-}
-
-.diet.selected {
-  background-color: rgb(162, 53, 10); /* din valda färg */
-  color: white; /* kontrastfärg */
-}
-
-.time.selected {
-  background-color: rgba(255, 101, 137, 1); /* din valda färg */
-  color: white; /* kontrastfärg */
-}
-
-.popular.selected {
-  background-color: rgb(38, 104, 37); /* din valda färg */
-  color: white; /* kontrastfärg */
+.show-all {
+  background-color: plum;
 }
 
 section {
@@ -103,21 +115,22 @@ section {
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  border: 1px solid lightgrey;
+  border: 2px solid lightgrey;
+  box-sizing: border-box;
   border-radius: 10px;
-  width: 250px; /* bredden är fix, men */
+  width: 250px;
   align-items: flex-start;
   overflow: hidden;
   padding: 10px;
   box-sizing: border-box;
-  height: auto; /*  viktigt: låt höjden bli dynamisk */
+  height: auto;
 }
 
 .recipes-boxes {
   display: grid;
-  grid-template-columns: 1fr; /* tar hela bredden */
-  justify-items: center; /* centrerar korten i kolumnen */
-  align-items: start; /*  hindra stretch i höjdled */
+  grid-template-columns: 1fr;
+  justify-items: center;
+  align-items: start;
   gap: 15px;
   margin: 0 auto;
 }
@@ -128,15 +141,15 @@ section {
 img {
   width: 100%;
   height: 200px;
-  object-fit: cover; /* bilden beskärs snyggt */
-  border-radius: 10px; /* bara översta hörnen rundas */
+  object-fit: cover;
+  border-radius: 10px;
   display: block;
 }
 
 hr {
   border: none;
-  border-top: 1px solid #ddd; /* ljusgrå linje */
-  margin: 12px 0; /* lite luft ovan/under */
+  border-top: 1px solid #ddd;
+  margin: 12px 0;
 }
 ul {
   margin: 0px;
@@ -147,22 +160,22 @@ ul {
 
 .meta {
   width: 100%;
-  border-top: 1px solid #ddd; /* linje ovanför */
-  border-bottom: 1px solid #ddd; /* linje under */
-  padding: 18px 0; /* luft mellan text och linjer */
-  margin: 0px 0; /* lite luft runt hela blocket */
+  border-top: 1px solid #ddd;
+  border-bottom: 1px solid #ddd;
+  padding: 18px 0;
+  margin: 0px 0;
 }
 
 .meta p {
-  margin: 4px 0; /* tajtare radavstånd */
+  margin: 4px 0;
 }
 
 .filters {
   display: flex;
-  flex-direction: column; /* stapla filterblocken under varandra */
-  align-items: center; /* centrera allt horisontellt */
-  text-align: center; /* centrera rubrikerna */
-  gap: 10px; /* lite luft mellan blocken */
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 10px;
   margin-bottom: 10px;
 }
 
@@ -170,27 +183,47 @@ ul {
   margin-bottom: 10px;
 }
 
-.filters button {
-  margin: 5px;
-}
-
 /* ===== Tablet (>= 768px) ===== */
 
 @media (min-width: 768px) {
+  .top-nav {
+    position: static;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 24px;
+  }
+
+  .search {
+    margin-bottom: 10px;
+  }
+
+  body {
+    padding: 0px;
+  }
+
+  .kitchen,
+  .diet,
+  .time,
+  .popular,
+  .random,
+  .show-all {
+    font-size: 14px;
+  }
+
   .recipes-boxes {
-    grid-template-columns: repeat(3, 1fr); /* två kolumner på tablet */
+    grid-template-columns: repeat(2, 1fr);
     padding-top: 20px;
   }
   .recipe {
-    width: 230px;
-    height: 510px;
+    width: 350px;
+    height: auto;
   }
   h1 {
-    text-align: center;
     padding-top: 10px;
     padding: 10px;
     margin-top: 20px;
-    margin-bottom: 20px;
+    margin-bottom: 0px;
     font-size: 64px;
   }
   h2 {
@@ -203,11 +236,42 @@ ul {
   p {
     font-size: 14px;
   }
+
+  .filters {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 24px;
+    padding-left: 0;
+  }
+  .random {
+    order: 1;
+  }
+
+  .show-all {
+    order: 2;
+    flex-basis: 70%;
+  }
 }
 
 /* ===== Desktop (>= 1024px) ===== */
 
 @media (min-width: 1024px) {
+  .top-nav {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px 32px;
+  }
+  .kitchen,
+  .diet,
+  .time,
+  .popular,
+  .random,
+  .show-all {
+    cursor: pointer;
+    font-size: 16px;
+  }
+
   body {
     padding: 30px 0 0 30px;
   }
@@ -231,47 +295,66 @@ ul {
   }
 
   .recipes-boxes {
-    grid-template-columns: repeat(6, 1fr);
+    grid-template-columns: repeat(5, 1fr);
     justify-items: start;
-    margin-left: 0;
-    margin-right: 0;
-    margin-bottom: 20px;
+    justify-content: center;
+    margin: 0 auto;
   }
 
   .recipe {
-    height: auto; /* släpp så att innehållet styr höjden */
-    width: 250px; /* bredden är fix, men */
+    height: auto;
+    width: 250px;
   }
 
   .filters {
     display: flex;
     flex-direction: row;
-    align-items: flex-start;
+    align-items: center;
     text-align: left;
-    gap: 40px; /* avstånd mellan blocken */
+    gap: 40px;
     margin-bottom: 20px;
   }
 
   .kitchen:hover {
-    border: 2px solid rgba(0, 24, 164, 1);
+    border-color: rgba(0, 24, 164, 1);
   }
-
   .time:hover {
+    border-color: rgba(0, 24, 164, 1);
     background-color: #ff6589;
-    border: 2px solid rgba(0, 24, 164, 1);
-    color: white;
+    color: #fff;
   }
-
   .diet:hover {
-    border: 2px solid rgb(162, 53, 10);
+    border-color: rgb(162, 53, 10);
   }
-
   .popular:hover {
-    border: 2px solid rgb(70, 203, 50);
+    border-color: rgb(70, 203, 50);
   }
-
+  .show-all:hover {
+    border-color: rgba(0, 24, 164, 1);
+  }
+  .random:hover {
+    border-color: rgb(162, 53, 10);
+  }
   .recipe:hover {
     border: 2px solid rgba(0, 24, 164, 1);
     box-shadow: 0px 0px 30px 0px rgba(0, 24, 164, 0.2);
+  }
+
+  .diet.selected {
+    background-color: rgb(162, 53, 10);
+    color: white;
+  }
+  .time.selected {
+    background-color: rgba(255, 101, 137, 1);
+    color: white;
+  }
+
+  .popular.selected {
+    background-color: rgb(38, 104, 37);
+    color: white;
+  }
+  .kitchen.selected {
+    background-color: rgb(17, 13, 238);
+    color: white;
   }
 }
