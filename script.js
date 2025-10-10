@@ -7,7 +7,7 @@ const sortTimeSelect = document.getElementById("sortTime");
 const sortPopSelect = document.getElementById("sortPop");
 const searchInput = document.getElementById("search");
 
-const renderStars = (num) => "⭐".repeat(num);
+const renderStars = (num) => "⭐".repeat(num); //helper function that creates a string of stars based on a number.
 
 const CACHE_KEY = "recipesCache"; // localStorage key
 const CACHE_TIME = 6 * 60 * 60 * 1000; // 6 hours in ms
@@ -162,12 +162,12 @@ const renderSingleResult = (r) => {
   const cuisineText = r.cuisine[0].toUpperCase() + r.cuisine.slice(1);
 
   // Build small display strings
-  const timeText = r.time + " minutes"; //konstanta variabler skapas.. En visningstext för minuter
-  const dietText = r.diet || "-"; // om diet finns skrivs den ut annars "-"
+  const timeText = r.time + " minutes";
+  const dietText = r.diet || "-";
   const popularText = renderStars(r.popularity);
 
   // Turn the ingredients array into <li> items
-  const ingHtml = r.ingredients.map((i) => `<li>${i}</li>`).join(""); //Här görs igridienslistan om från array till html
+  const ingHtml = r.ingredients.map((i) => `<li>${i}</li>`).join("");
 
   // Return one complete recipe card HTML
   return `
@@ -290,8 +290,9 @@ const fetchRecipes = async () => {
 //======================= FILTER & SORT EVENT LISTENERS ========================
 // Cuisine filter
 document.getElementById("cuisine").addEventListener("change", (e) => {
-  setCuisine(e.target.value); // uppdaterar state
-  renderResult(); // rita om listan (eller hämta från API om du vill)
+  //The event object that is automatically passed to the callback function.
+  setCuisine(e.target.value); //setCuisine() saves that selection. e.target.value = the value the user selected in the dropdown menu.
+  renderResult(); //renderResult() updates the view.
 });
 
 // Diet filter
@@ -303,20 +304,20 @@ document.getElementById("diet").addEventListener("change", (e) => {
 // Sort by time (asc/desc)
 document.getElementById("sortTime").addEventListener("change", (e) => {
   selectedSortType = "time";
-  setSort(e.target.value); // "asc" eller "desc"
+  setSort(e.target.value);
 });
 
 // Sort by popularity (most/least)
 document.getElementById("sortPop").addEventListener("change", (e) => {
   selectedSortType = "popular";
-  setPopular(e.target.value); // "most" eller "least"
+  setPopular(e.target.value);
 });
 document.getElementById("btn-show-all").addEventListener("click", () => {
   renderResult();
 });
 document.getElementById("search").addEventListener("input", (e) => {
-  searchQuery = e.target.value; // uppdatera state
-  renderResult(); // rita om listan
+  searchQuery = e.target.value;
+  renderResult();
 });
 
 //=========================== SHOW-ALL BUTTON HANDLER ==========================
