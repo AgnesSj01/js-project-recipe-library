@@ -79,3 +79,4 @@ const getRandomRecipe = () => {
   //Gör om receptet till HTML (med hjälp av renderSingleResult) och visar det i sidan, i elementet cardsEl.
   cardsEl.innerHTML = renderSingleResult(recipe);
 };*/
+git;

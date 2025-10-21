@@ -227,8 +227,6 @@ randomButton.addEventListener("click", () => {
 
 //===================== FETCH RECIPES (WITH SIMPLE CACHE) ======================
 const fetchRecipes = async () => {
-  cardsEl.innerHTML = "<p>Fetching recipes…</p>";
-
   // 1) Try cache first
   const cached = localStorage.getItem(CACHE_KEY);
   if (cached) {
@@ -245,7 +243,16 @@ const fetchRecipes = async () => {
     }
   }
 
-  // 2) Fetch via RANDOM endpoint (ensures extendedIngredients are present)
+  //2) Loading
+  cardsEl.innerHTML = `
+  <div class="loading">
+  <p> Loading recipes...</p>
+  <div class="spinner"> </div>
+  </div>`;
+
+  await new Promise((resolve) => setTimeout(resolve, 3000));
+
+  // 3) Fetch via RANDOM endpoint (ensures extendedIngredients are present)
   try {
     const res = await fetch(RANDOM_URL, { cache: "no-store" });
     if (!res.ok) throw new Error(String(res.status));
